@@ -1,241 +1,1169 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VALORANT // ARCHIVE</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VALORANT // ASCENT</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    background: #05080d;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+header {
+    height: 70px;
+    padding: 0 45px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: #080d13;
+    border-bottom: 1px solid #26323d;
+
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 21px;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+.logo span {
+    color: #ff4655;
+}
+
+nav {
+    display: flex;
+    gap: 30px;
+}
+
+nav a {
+    color: #a9b2ba;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+nav a:hover {
+    color: #ff4655;
+}
+
+/* =========================
+   HERO
+========================= */
+
+.hero {
+    min-height: 330px;
+    position: relative;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            90deg,
+            #05080d 0%,
+            rgba(5,8,13,.82) 40%,
+            rgba(5,8,13,.25) 100%
+        ),
+        radial-gradient(
+            circle at 75% 50%,
+            #61202a,
+            transparent 40%
+        );
+}
+
+.hero::before {
+    content: "";
+
+    position: absolute;
+    width: 500px;
+    height: 500px;
+
+    right: 8%;
+    top: -100px;
+
+    border: 1px solid #ff465533;
+    transform: rotate(25deg);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+
+    padding: 85px 8%;
+}
+
+.hero-content small {
+    color: #ff4655;
+    font-size: 13px;
+    letter-spacing: 4px;
+    font-weight: bold;
+}
+
+.hero-content h1 {
+    margin: 12px 0 0;
+
+    font-size: 80px;
+    letter-spacing: -5px;
+}
+
+.hero-content p {
+    color: #87939d;
+    margin-top: 15px;
+}
+
+/* =========================
+   MAP SECTION
+========================= */
+
+.map-section {
+    padding: 55px 5%;
+}
+
+.map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+
+    margin-bottom: 25px;
+}
+
+.map-title h2 {
+    margin: 0;
+
+    font-size: 36px;
+    letter-spacing: 2px;
+}
+
+.map-title h2 span {
+    color: #ff4655;
+}
+
+.map-title p {
+    margin: 8px 0 0;
+
+    color: #697680;
+    font-size: 12px;
+}
+
+.map-status {
+    padding: 10px 18px;
+
+    border: 1px solid #293741;
+
+    color: #ff4655;
+
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* =========================
+   MAP AREA
+========================= */
+
+.map-wrapper {
+    width: 100%;
+
+    padding: 30px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #111a20,
+            #071016
+        );
+
+    border: 1px solid #293842;
+
+    box-shadow:
+        0 0 50px #000 inset,
+        0 20px 60px #0008;
+
+    overflow: auto;
+}
+
+.map {
+    position: relative;
+
+    width: 1000px;
+    height: 650px;
+
+    margin: auto;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 49.5%,
+            #ff465522 50%,
+            transparent 50.5%
+        ),
+        linear-gradient(
+            0deg,
+            transparent 49.5%,
+            #ff465522 50%,
+            transparent 50.5%
+        ),
+        #9b9a8b;
+
+    border: 7px solid #242c30;
+
+    box-shadow:
+        0 0 0 2px #56616a,
+        0 30px 70px #000;
+
+    overflow: hidden;
+}
+
+/* 건물/지역 */
+
+.area {
+    position: absolute;
+
+    background:
+        linear-gradient(
+            135deg,
+            #b8b4a0,
+            #858576
+        );
+
+    border: 5px solid #4b4c45;
+
+    box-shadow:
+        inset 0 0 25px #3d3d3540;
+}
+
+/* A 지역 */
+
+.a-site {
+    left: 650px;
+    top: 70px;
+
+    width: 280px;
+    height: 220px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #c0baa0,
+            #8c8977
+        );
+}
+
+.a-site::after {
+    content: "A";
+
+    position: absolute;
+
+    right: 20px;
+    top: 15px;
+
+    font-size: 80px;
+    font-weight: 900;
+
+    color: #ff465533;
+}
+
+/* B 지역 */
+
+.b-site {
+    left: 70px;
+    top: 370px;
+
+    width: 260px;
+    height: 200px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #aaa78e,
+            #77786e
+        );
+}
+
+.b-site::after {
+    content: "B";
+
+    position: absolute;
+
+    left: 20px;
+    bottom: 10px;
+
+    font-size: 80px;
+    font-weight: 900;
+
+    color: #ff465533;
+}
+
+/* 중앙 */
+
+.mid {
+    left: 390px;
+    top: 210px;
+
+    width: 220px;
+    height: 220px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #c8c1a9,
+            #878776
+        );
+}
+
+/* Spawn */
+
+.spawn {
+    left: 400px;
+    top: 520px;
+
+    width: 190px;
+    height: 90px;
+
+    background: #696f70;
+}
+
+/* 통로 */
+
+.path {
+    position: absolute;
+
+    background: #5f625d;
+
+    border: 3px solid #454942;
+}
+
+.path-1 {
+    left: 320px;
+    top: 90px;
+
+    width: 110px;
+    height: 170px;
+}
+
+.path-2 {
+    left: 290px;
+    top: 390px;
+
+    width: 150px;
+    height: 80px;
+}
+
+.path-3 {
+    left: 550px;
+    top: 380px;
+
+    width: 130px;
+    height: 70px;
+}
+
+/* 벽 */
+
+.wall {
+    position: absolute;
+
+    background: #303638;
+
+    border: 2px solid #161b1d;
+
+    box-shadow: 0 3px 0 #1c2224;
+}
+
+.wall::after {
+    content: "";
+
+    position: absolute;
+
+    inset: 5px;
+
+    border: 1px solid #58606555;
+}
+
+/* 벽 위치 */
+
+.w1 {
+    left: 45px;
+    top: 45px;
+
+    width: 260px;
+    height: 25px;
+}
+
+.w2 {
+    left: 60px;
+    top: 245px;
+
+    width: 180px;
+    height: 25px;
+}
+
+.w3 {
+    left: 700px;
+    top: 330px;
+
+    width: 240px;
+    height: 25px;
+}
+
+.w4 {
+    left: 620px;
+    top: 430px;
+
+    width: 25px;
+    height: 130px;
+}
+
+.w5 {
+    left: 350px;
+    top: 460px;
+
+    width: 25px;
+    height: 130px;
+}
+
+.w6 {
+    left: 460px;
+    top: 40px;
+
+    width: 25px;
+    height: 100px;
+}
+
+/* 문 */
+
+.door {
+    position: absolute;
+
+    width: 45px;
+    height: 70px;
+
+    background: #1e2527;
+
+    border: 4px solid #0f1315;
+
+    box-shadow:
+        0 0 15px #000 inset;
+}
+
+.door::after {
+    content: "";
+
+    position: absolute;
+
+    width: 7px;
+    height: 7px;
+
+    background: #ff4655;
+
+    border-radius: 50%;
+
+    right: 7px;
+    top: 50%;
+
+    box-shadow: 0 0 8px #ff4655;
+}
+
+.door-1 {
+    left: 605px;
+    top: 135px;
+}
+
+.door-2 {
+    left: 335px;
+    top: 330px;
+}
+
+.door-3 {
+    left: 560px;
+    top: 440px;
+}
+
+/* 스파이크 사이트 표시 */
+
+.site-label {
+    position: absolute;
+
+    padding: 7px 13px;
+
+    color: white;
+
+    background: #ff4655;
+
+    font-weight: 900;
+    font-size: 13px;
+
+    box-shadow: 0 0 20px #ff465566;
+}
+
+/* 맵 위치 */
+
+.a-label {
+    left: 770px;
+    top: 155px;
+}
+
+.b-label {
+    left: 155px;
+    top: 445px;
+}
+
+.mid-label {
+    left: 460px;
+    top: 300px;
+
+    background: #202a30;
+}
+
+/* Spawn label */
+
+.spawn-label {
+    left: 445px;
+    top: 550px;
+
+    background: #202a30;
+}
+
+/* =========================
+   PLAYER
+========================= */
+
+.player {
+    position: absolute;
+
+    width: 20px;
+    height: 20px;
+
+    background: #57c7ff;
+
+    border: 3px solid white;
+
+    border-radius: 50%;
+
+    left: 495px;
+    top: 550px;
+
+    box-shadow:
+        0 0 0 8px #57c7ff33,
+        0 0 20px #57c7ff;
+
+    z-index: 10;
+
+    transition: .15s;
+}
+
+.player::before {
+    content: "";
+
+    position: absolute;
+
+    width: 35px;
+    height: 2px;
+
+    background: #57c7ff;
+
+    left: 8px;
+    top: 6px;
+
+    transform-origin: left;
+    transform: rotate(-35deg);
+}
+
+/* =========================
+   MAP LEGEND
+========================= */
+
+.legend {
+    display: flex;
+
+    gap: 25px;
+
+    margin-top: 20px;
+
+    color: #89959d;
+
+    font-size: 11px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+
+    border-radius: 50%;
+}
+
+.red {
+    background: #ff4655;
+}
+
+.blue {
+    background: #57c7ff;
+}
+
+.gray {
+    background: #303638;
+}
+
+/* =========================
+   CONTROLS
+========================= */
+
+.controls {
+    margin-top: 25px;
+
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.control-btn {
+    padding: 12px 18px;
+
+    background: #0d151c;
+
+    border: 1px solid #2b3b46;
+
+    color: #aeb8bf;
+
+    cursor: pointer;
+
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.control-btn:hover {
+    color: white;
+    border-color: #ff4655;
+}
+
+.control-btn.active {
+    background: #ff4655;
+    border-color: #ff4655;
+    color: white;
+}
+
+/* =========================
+   INFO
+========================= */
+
+.info-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 15px;
+
+    margin-top: 40px;
+}
+
+.info-card {
+    padding: 25px;
+
+    background: #0b1218;
+
+    border: 1px solid #24333d;
+}
+
+.info-card h3 {
+    margin: 0;
+
+    color: #ff4655;
+
+    font-size: 14px;
+}
+
+.info-card p {
+    color: #79858e;
+
+    line-height: 1.6;
+
+    font-size: 12px;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+footer {
+    padding: 35px 6%;
+
+    border-top: 1px solid #202c35;
+
+    color: #66737d;
+
+    display: flex;
+    justify-content: space-between;
+}
+
+footer strong {
+    color: #ff4655;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width: 700px) {
+
+    header {
+        padding: 0 20px;
+    }
+
+    nav {
+        display: none;
+    }
+
+    .hero-content h1 {
+        font-size: 55px;
+    }
+
+    .map-section {
+        padding: 40px 15px;
+    }
+
+    .map-wrapper {
+        padding: 15px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .map-header {
+        align-items: start;
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+</style>
 </head>
 
 <body>
 
+<!-- =========================
+     HEADER
+========================= -->
+
 <header>
-    <div class="logo">VALORANT<span>//</span>ARCHIVE</div>
+
+    <div class="logo">
+        VALORANT<span>//</span>ARCHIVE
+    </div>
 
     <nav>
         <a href="#home">HOME</a>
-        <a href="#agents">AGENTS</a>
-        <a href="#maps">MAPS</a>
-        <a href="#modes">MODES</a>
-        <a href="#weapons">WEAPONS</a>
-        <a href="#crosshair">CROSSHAIR</a>
+        <a href="#ascent">ASCENT</a>
+        <a href="#info">INFO</a>
     </nav>
+
+    <button class="control-btn"
+        onclick="centerMap()">
+        MAP CENTER
+    </button>
+
 </header>
 
-<main>
 
-    <!-- HERO -->
-    <section id="home" class="hero">
-        <div class="hero-content">
-            <p class="red-text">TACTICAL FPS // ARCHIVE</p>
-            <h1>VALORANT</h1>
-            <h2>PLAY. AIM. WIN.</h2>
+<!-- =========================
+     HERO
+========================= -->
+
+<section id="home" class="hero">
+
+    <div class="hero-content">
+
+        <small>
+            TACTICAL MAP DATABASE // 01
+        </small>
+
+        <h1>
+            ASCENT
+        </h1>
+
+        <p>
+            VALORANT 스타일의 전술 맵 인터페이스
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     MAP
+========================= -->
+
+<section id="ascent" class="map-section">
+
+    <div class="map-header">
+
+        <div class="map-title">
+
+            <h2>
+                <span>01</span>
+                ASCENT
+            </h2>
+
             <p>
-                요원, 맵, 무기와 게임 시스템을 한눈에 확인할 수 있는
-                VALORANT 팬 아카이브 사이트
+                ITALY // TACTICAL COMBAT ZONE
             </p>
 
-            <div class="hero-buttons">
-                <a href="#agents" class="btn primary">AGENTS</a>
-                <a href="#maps" class="btn">EXPLORE</a>
+        </div>
+
+        <div class="map-status">
+            MAP ONLINE
+        </div>
+
+    </div>
+
+
+    <div class="map-wrapper">
+
+        <div class="map" id="map">
+
+            <!-- 지역 -->
+
+            <div class="area a-site"></div>
+
+            <div class="area b-site"></div>
+
+            <div class="area mid"></div>
+
+            <div class="area spawn"></div>
+
+
+            <!-- 통로 -->
+
+            <div class="path path-1"></div>
+
+            <div class="path path-2"></div>
+
+            <div class="path path-3"></div>
+
+
+            <!-- 벽 -->
+
+            <div class="wall w1"></div>
+
+            <div class="wall w2"></div>
+
+            <div class="wall w3"></div>
+
+            <div class="wall w4"></div>
+
+            <div class="wall w5"></div>
+
+            <div class="wall w6"></div>
+
+
+            <!-- 문 -->
+
+            <div class="door door-1"></div>
+
+            <div class="door door-2"></div>
+
+            <div class="door door-3"></div>
+
+
+            <!-- 사이트 -->
+
+            <div class="site-label a-label">
+                A SITE
             </div>
+
+            <div class="site-label b-label">
+                B SITE
+            </div>
+
+            <div class="site-label mid-label">
+                MID
+            </div>
+
+
+            <!-- 스폰 -->
+
+            <div class="site-label spawn-label">
+                ATTACKER SPAWN
+            </div>
+
+
+            <!-- 플레이어 -->
+
+            <div
+                class="player"
+                id="player">
+            </div>
+
         </div>
 
-        <div class="hero-crosshair">
-            <div></div>
-        </div>
-    </section>
+    </div>
 
 
-    <!-- AGENTS -->
-    <section id="agents" class="section">
-        <div class="section-title">
-            <span>01</span>
-            <h2>AGENTS</h2>
-        </div>
+    <!-- LEGEND -->
 
-        <div class="filters">
-            <button class="filter active" data-role="all">ALL</button>
-            <button class="filter" data-role="duelist">DUELIST</button>
-            <button class="filter" data-role="initiator">INITIATOR</button>
-            <button class="filter" data-role="controller">CONTROLLER</button>
-            <button class="filter" data-role="sentinel">SENTINEL</button>
+    <div class="legend">
+
+        <div class="legend-item">
+            <span class="dot red"></span>
+            Spike Site
         </div>
 
-        <div id="agent-list" class="card-grid"></div>
+        <div class="legend-item">
+            <span class="dot blue"></span>
+            Player
+        </div>
 
-        <button id="randomAgent" class="random-btn">
-            RANDOM AGENT
+        <div class="legend-item">
+            <span class="dot gray"></span>
+            Wall / Structure
+        </div>
+
+    </div>
+
+
+    <!-- CONTROLS -->
+
+    <div class="controls">
+
+        <button
+            class="control-btn active"
+            onclick="setPlayer('spawn')">
+            ATTACKER SPAWN
         </button>
 
-        <p id="randomResult"></p>
-    </section>
+        <button
+            class="control-btn"
+            onclick="setPlayer('mid')">
+            MID
+        </button>
+
+        <button
+            class="control-btn"
+            onclick="setPlayer('a')">
+            A SITE
+        </button>
+
+        <button
+            class="control-btn"
+            onclick="setPlayer('b')">
+            B SITE
+        </button>
+
+    </div>
 
 
-    <!-- MAPS -->
-    <section id="maps" class="section dark-section">
-        <div class="section-title">
-            <span>02</span>
-            <h2>MAP INDEX</h2>
-        </div>
+    <!-- INFO -->
 
-        <div class="map-grid">
+    <div id="info" class="info-grid">
 
-            <div class="map-card">
-                <div class="map-number">01</div>
-                <h3>ASCENT</h3>
-                <p>중앙 지역을 중심으로 공격과 수비가 충돌하는 맵.</p>
-            </div>
+        <div class="info-card">
 
-            <div class="map-card">
-                <div class="map-number">02</div>
-                <h3>HAVEN</h3>
-                <p>3개의 스파이크 사이트를 가지고 있는 맵.</p>
-            </div>
+            <h3>
+                A SITE
+            </h3>
 
-            <div class="map-card">
-                <div class="map-number">03</div>
-                <h3>BIND</h3>
-                <p>텔레포터를 이용한 빠른 지역 이동이 특징.</p>
-            </div>
-
-            <div class="map-card">
-                <div class="map-number">04</div>
-                <h3>SPLIT</h3>
-                <p>높낮이와 로프를 활용하는 수직적인 구조.</p>
-            </div>
-
-        </div>
-    </section>
-
-
-    <!-- MODES -->
-    <section id="modes" class="section">
-        <div class="section-title">
-            <span>03</span>
-            <h2>GAME MODES</h2>
-        </div>
-
-        <div class="mode-grid">
-
-            <button class="mode-card" data-mode="competitive">
-                <strong>COMPETITIVE</strong>
-                <span>경쟁전</span>
-            </button>
-
-            <button class="mode-card" data-mode="unrated">
-                <strong>UNRATED</strong>
-                <span>일반전</span>
-            </button>
-
-            <button class="mode-card" data-mode="deathmatch">
-                <strong>DEATHMATCH</strong>
-                <span>데스매치</span>
-            </button>
-
-            <button class="mode-card" data-mode="spikerush">
-                <strong>SPIKE RUSH</strong>
-                <span>스파이크 러시</span>
-            </button>
+            <p>
+                공격과 수비가 충돌하는 주요 스파이크 설치 구역.
+                중앙 지역을 통해 접근할 수 있도록 구성되어 있습니다.
+            </p>
 
         </div>
 
-        <div id="modeDescription" class="mode-description">
-            게임 모드를 선택하세요.
-        </div>
-    </section>
 
+        <div class="info-card">
 
-    <!-- WEAPONS -->
-    <section id="weapons" class="section dark-section">
-        <div class="section-title">
-            <span>04</span>
-            <h2>WEAPON LAB</h2>
-        </div>
+            <h3>
+                MID
+            </h3>
 
-        <div class="weapon-container">
-
-            <select id="weaponSelect">
-                <option value="vandal">VANDAL</option>
-                <option value="phantom">PHANTOM</option>
-                <option value="operator">OPERATOR</option>
-                <option value="spectre">SPECTRE</option>
-            </select>
-
-            <div id="weaponInfo" class="weapon-info"></div>
+            <p>
+                맵 중앙의 핵심 교전 지역.
+                중앙 장악에 성공하면 양쪽 사이트로 이동하기 쉽습니다.
+            </p>
 
         </div>
-    </section>
 
 
-    <!-- CROSSHAIR -->
-    <section id="crosshair" class="section">
-        <div class="section-title">
-            <span>05</span>
-            <h2>CROSSHAIR BUILDER</h2>
+        <div class="info-card">
+
+            <h3>
+                B SITE
+            </h3>
+
+            <p>
+                좁은 통로와 연결된 스파이크 사이트.
+                진입 전에 주변 각도를 확인하는 것이 중요합니다.
+            </p>
+
         </div>
 
-        <div class="crosshair-builder">
+    </div>
 
-            <div class="preview">
-                <div id="crosshairPreview">
-                    <i></i>
-                    <i></i>
-                    <i></i>
-                    <i></i>
-                    <b></b>
-                </div>
-            </div>
-
-            <div class="controls">
-
-                <label>
-                    색상
-                    <input type="color" id="crosshairColor" value="#ff4655">
-                </label>
-
-                <label>
-                    크기
-                    <input
-                        type="range"
-                        id="crosshairSize"
-                        min="4"
-                        max="30"
-                        value="12"
-                    >
-                </label>
-
-                <label>
-                    간격
-                    <input
-                        type="range"
-                        id="crosshairGap"
-                        min="2"
-                        max="20"
-                        value="7"
-                    >
-                </label>
-
-                <button id="copyCrosshair" class="btn primary">
-                    COPY SETTINGS
-                </button>
-
-            </div>
-        </div>
-    </section>
-
-</main>
+</section>
 
 
 <footer>
-    <p>VALORANT // ARCHIVE</p>
-    <small>
-        Unofficial fan project. VALORANT and related intellectual property
-        belong to their respective rights holders.
-    </small>
+
+    <strong>
+        VALORANT // ARCHIVE
+    </strong>
+
+    <span>
+        ASCENT MAP DATABASE
+    </span>
+
 </footer>
 
-<script src="script.js"></script>
+
+<script>
+
+/* =========================
+   PLAYER SYSTEM
+========================= */
+
+const player =
+    document.getElementById("player");
+
+
+function setPlayer(position) {
+
+    if(position === "spawn") {
+
+        player.style.left = "495px";
+        player.style.top = "550px";
+
+    }
+
+    if(position === "mid") {
+
+        player.style.left = "495px";
+        player.style.top = "305px";
+
+    }
+
+    if(position === "a") {
+
+        player.style.left = "790px";
+        player.style.top = "180px";
+
+    }
+
+    if(position === "b") {
+
+        player.style.left = "180px";
+        player.style.top = "465px";
+
+    }
+
+}
+
+
+/* =========================
+   MAP CENTER
+========================= */
+
+function centerMap() {
+
+    const wrapper =
+        document.querySelector(".map-wrapper");
+
+    wrapper.scrollLeft =
+        (wrapper.scrollWidth -
+        wrapper.clientWidth) / 2;
+
+}
+
+
+/* =========================
+   CLICK MAP
+========================= */
+
+const map =
+    document.getElementById("map");
+
+map.addEventListener("click", function(e) {
+
+    const rect =
+        map.getBoundingClientRect();
+
+    const x =
+        e.clientX - rect.left;
+
+    const y =
+        e.clientY - rect.top;
+
+    player.style.left =
+        (x - 10) + "px";
+
+    player.style.top =
+        (y - 10) + "px";
+
+});
+
+
+/* =========================
+   KEYBOARD MOVEMENT
+========================= */
+
+document.addEventListener("keydown", function(e) {
+
+    let x =
+        parseInt(player.style.left || 495);
+
+    let y =
+        parseInt(player.style.top || 550);
+
+    const speed = 8;
+
+    if(e.key === "ArrowUp" || e.key === "w") {
+        y -= speed;
+    }
+
+    if(e.key === "ArrowDown" || e.key === "s") {
+        y += speed;
+    }
+
+    if(e.key === "ArrowLeft" || e.key === "a") {
+        x -= speed;
+    }
+
+    if(e.key === "ArrowRight" || e.key === "d") {
+        x += speed;
+    }
+
+    x = Math.max(5, Math.min(975, x));
+    y = Math.max(5, Math.min(625, y));
+
+    player.style.left = x + "px";
+    player.style.top = y + "px";
+
+});
+
+</script>
 
 </body>
 </html>
