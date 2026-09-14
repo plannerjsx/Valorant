@@ -3,212 +3,359 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>폐병원 - 탈출</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>방 탈출</title>
 
 <style>
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-    user-select:none;
+* {
+    box-sizing: border-box;
 }
 
-html,body{
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#000;
-    font-family:Arial,"Malgun Gothic",sans-serif;
+body {
+    margin: 0;
+    background: #090909;
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
 }
 
-canvas{
-    display:block;
-    width:100vw;
-    height:100vh;
-    background:#050505;
-    cursor:none;
-}
-
-#hud{
-    position:fixed;
-    left:20px;
-    top:20px;
-    color:white;
-    z-index:10;
-    pointer-events:none;
-    text-shadow:0 2px 4px #000;
-}
-
-#hud h1{
-    font-size:20px;
-    margin-bottom:8px;
-    letter-spacing:2px;
-}
-
-#health{
-    width:180px;
-    height:13px;
-    border:2px solid #aaa;
-    background:#111;
-}
-
-#healthBar{
-    width:100%;
-    height:100%;
-    background:#b30000;
-}
-
-#keys{
-    margin-top:10px;
-    font-size:16px;
-}
-
-#message{
-    position:fixed;
-    left:50%;
-    bottom:55px;
-    transform:translateX(-50%);
-    color:white;
-    font-size:18px;
-    text-align:center;
-    z-index:20;
-    text-shadow:0 2px 6px #000;
-    pointer-events:none;
-}
-
-#startScreen,
-#gameOver,
-#winScreen{
-    position:fixed;
-    inset:0;
-    z-index:100;
+#game {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
     background:
-        radial-gradient(circle at center,#171717 0%,#030303 65%);
-    color:white;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    text-align:center;
+        radial-gradient(circle at 50% 35%, #292929 0%, #111 45%, #050505 100%);
 }
 
-.panel{
-    width:min(600px,90vw);
-    padding:40px;
-    border:1px solid #444;
-    background:rgba(5,5,5,.9);
-    box-shadow:0 0 50px #000;
+/* 어두운 효과 */
+#darkness {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 50% 50%,
+        transparent 0px,
+        rgba(0,0,0,.25) 180px,
+        rgba(0,0,0,.75) 500px,
+        rgba(0,0,0,.95) 900px);
 }
 
-.panel h2{
-    font-size:42px;
-    letter-spacing:8px;
-    margin-bottom:20px;
+/* 천장등 */
+#lamp {
+    position: absolute;
+    top: 35px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90px;
+    height: 25px;
+    background: #ddd;
+    border-radius: 50%;
+    box-shadow: 0 0 70px 35px rgba(255,240,180,.25);
 }
 
-.panel p{
-    line-height:1.8;
-    color:#bbb;
-    margin-bottom:25px;
+/* 벽 */
+.wall {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 68%;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #242424 0px,
+            #242424 100px,
+            #202020 101px,
+            #202020 103px
+        );
 }
 
-button{
-    border:1px solid #888;
-    background:#111;
-    color:white;
-    padding:14px 30px;
-    font-size:17px;
-    cursor:pointer;
+/* 바닥 */
+.floor {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 32%;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #171717 0,
+            #171717 120px,
+            #222 121px,
+            #222 123px
+        ),
+        repeating-linear-gradient(
+            0deg,
+            transparent 0,
+            transparent 55px,
+            rgba(255,255,255,.03) 56px
+        );
 }
 
-button:hover{
-    background:#333;
+/* 문 */
+#door {
+    position: absolute;
+    width: 190px;
+    height: 390px;
+    left: 50%;
+    bottom: 32%;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg,#161616,#292929,#151515);
+    border: 7px solid #111;
+    box-shadow: inset 0 0 30px black, 0 0 30px #000;
+    cursor: pointer;
 }
 
-.hidden{
-    display:none !important;
+#door::before {
+    content: "";
+    position: absolute;
+    inset: 15px;
+    border: 2px solid #444;
 }
 
-#hint{
-    margin-top:18px;
-    color:#777;
-    font-size:13px;
+#handle {
+    position: absolute;
+    right: 25px;
+    top: 50%;
+    width: 15px;
+    height: 55px;
+    background: #777;
+    border-radius: 8px;
 }
 
-#crosshair{
-    position:fixed;
-    width:10px;
-    height:10px;
-    left:50%;
-    top:50%;
-    transform:translate(-50%,-50%);
-    border:1px solid rgba(255,255,255,.7);
-    border-radius:50%;
-    z-index:15;
-    pointer-events:none;
+#lock {
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    transform: translate(-50%,-50%);
+    width: 35px;
+    height: 35px;
+    border: 4px solid #888;
+    border-radius: 50%;
 }
 
-#flashlight{
-    position:fixed;
-    inset:0;
-    pointer-events:none;
-    z-index:8;
-    background:radial-gradient(
-        circle 150px at 50% 50%,
-        transparent 0,
-        rgba(0,0,0,.1) 35%,
-        rgba(0,0,0,.75) 72%,
-        rgba(0,0,0,.97) 100%
-    );
+/* 책상 */
+#desk {
+    position: absolute;
+    left: 8%;
+    bottom: 25%;
+    width: 260px;
+    height: 25px;
+    background: #38261b;
+    box-shadow: 0 8px 0 #21150e;
 }
 
-#danger{
-    position:fixed;
-    inset:0;
-    pointer-events:none;
-    z-index:9;
-    opacity:0;
-    background:radial-gradient(
-        circle,
-        transparent 35%,
-        rgba(120,0,0,.3) 75%,
-        rgba(120,0,0,.65)
-    );
+#desk::before,
+#desk::after {
+    content: "";
+    position: absolute;
+    top: 20px;
+    width: 20px;
+    height: 180px;
+    background: #28190f;
 }
 
-#touch{
-    display:none;
-    position:fixed;
-    bottom:20px;
-    left:20px;
-    z-index:30;
+#desk::before { left: 15px; }
+#desk::after { right: 15px; }
+
+/* 책 */
+#book {
+    position: absolute;
+    left: 90px;
+    bottom: 27%;
+    width: 80px;
+    height: 55px;
+    background: #6c2525;
+    border: 3px solid #321010;
+    transform: rotate(-5deg);
+    cursor: pointer;
 }
 
-.touchRow{
-    display:flex;
-    gap:5px;
-    justify-content:center;
+/* 액자 */
+#picture {
+    position: absolute;
+    right: 12%;
+    top: 15%;
+    width: 170px;
+    height: 130px;
+    background: #302414;
+    border: 12px solid #765b35;
+    cursor: pointer;
 }
 
-.touchBtn{
-    width:55px;
-    height:55px;
-    padding:0;
-    opacity:.5;
-    font-size:20px;
+#picture::after {
+    content: "7  △  3";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: #161616;
+    color: #d7c28b;
+    font-size: 25px;
 }
 
-@media(max-width:700px){
-    #touch{
-        display:block;
-    }
+/* 시계 */
+#clock {
+    position: absolute;
+    left: 12%;
+    top: 13%;
+    width: 110px;
+    height: 110px;
+    border: 7px solid #777;
+    border-radius: 50%;
+    background: #111;
+    cursor: pointer;
+}
 
-    #crosshair{
-        display:none;
-    }
+#clock::before {
+    content: "";
+    position: absolute;
+    width: 4px;
+    height: 38px;
+    background: white;
+    left: 50%;
+    top: 17px;
+    transform-origin: bottom;
+    transform: rotate(30deg);
+}
 
-    .panel h2{
-        font-size:30px;
+#clock::after {
+    content: "";
+    position: absolute;
+    width: 4px;
+    height: 30px;
+    background: white;
+    left: 50%;
+    top: 25px;
+    transform-origin: bottom;
+    transform: rotate(300deg);
+}
+
+/* 메모 */
+#note {
+    position: absolute;
+    right: 5%;
+    bottom: 12%;
+    width: 180px;
+    min-height: 100px;
+    padding: 15px;
+    background: #c8b77a;
+    color: #181818;
+    transform: rotate(3deg);
+    cursor: pointer;
+    box-shadow: 5px 8px 15px #000;
+}
+
+#note b {
+    display: block;
+    margin-bottom: 8px;
+}
+
+/* HUD */
+#hud {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    padding: 12px 18px;
+    background: rgba(0,0,0,.65);
+    border: 1px solid #555;
+    border-radius: 8px;
+    z-index: 10;
+}
+
+#message {
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(700px,90%);
+    padding: 15px;
+    text-align: center;
+    background: rgba(0,0,0,.8);
+    border: 1px solid #555;
+    border-radius: 8px;
+    z-index: 20;
+}
+
+/* 팝업 */
+#popup {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.85);
+    z-index: 50;
+    align-items: center;
+    justify-content: center;
+}
+
+.panel {
+    width: min(450px,90%);
+    background: #181818;
+    border: 2px solid #666;
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 0 50px black;
+}
+
+input {
+    width: 100%;
+    padding: 14px;
+    margin: 15px 0;
+    background: #090909;
+    border: 1px solid #555;
+    color: white;
+    text-align: center;
+    font-size: 22px;
+    letter-spacing: 5px;
+}
+
+button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 7px;
+    background: #777;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #999;
+}
+
+/* 탈출 성공 */
+#win {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 100;
+    background: rgba(0,0,0,.95);
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+#win h1 {
+    font-size: 60px;
+    color: #eee;
+    text-shadow: 0 0 30px white;
+}
+
+#win p {
+    font-size: 20px;
+    color: #aaa;
+}
+
+.flash {
+    animation: flash .2s 3;
+}
+
+@keyframes flash {
+    50% {
+        filter: brightness(3);
     }
 }
 </style>
@@ -216,1222 +363,211 @@ button:hover{
 
 <body>
 
-<canvas id="game"></canvas>
+<div id="game">
 
-<div id="flashlight"></div>
-<div id="danger"></div>
-<div id="crosshair"></div>
+    <div class="wall"></div>
+    <div class="floor"></div>
 
-<div id="hud">
-    <h1>폐병원 : NIGHT SHIFT</h1>
+    <div id="lamp"></div>
 
-    <div>체력</div>
-    <div id="health">
-        <div id="healthBar"></div>
+    <div id="door" title="잠긴 문">
+        <div id="lock"></div>
+        <div id="handle"></div>
     </div>
 
-    <div id="keys">
-        🔑 열쇠: <span id="keyCount">0</span> / 3
+    <div id="desk"></div>
+    <div id="book" title="책"></div>
+
+    <div id="picture" title="액자"></div>
+    <div id="clock" title="시계"></div>
+
+    <div id="note">
+        <b>낡은 메모</b>
+        "시계가 가리키는 시간과<br>
+        그림 속 숫자를 기억하라."
     </div>
 
-    <div style="margin-top:6px">
-        🔦 손전등: <span id="battery">100</span>%
+    <div id="darkness"></div>
+
+    <div id="hud">
+        🔐 방 탈출<br>
+        <span id="status">단서를 찾아보세요.</span>
     </div>
-</div>
 
-<div id="message"></div>
+    <div id="message">
+        주변의 물건을 클릭해서 단서를 찾아보세요.
+    </div>
 
-<div id="startScreen">
-    <div class="panel">
-        <h2>폐병원</h2>
+    <!-- 암호 입력 -->
+    <div id="popup">
+        <div class="panel">
+            <h2>🔒 문이 잠겨 있다</h2>
+            <p>4자리 암호를 입력하세요.</p>
 
-        <p>
-            새벽 2시.<br>
-            당신은 폐쇄된 병원 안에서 깨어났다.<br><br>
+            <input
+                id="code"
+                maxlength="4"
+                inputmode="numeric"
+                placeholder="0000"
+            >
 
-            출구는 잠겨 있다.<br>
-            병원 어딘가에 있는 <b>열쇠 3개</b>를 찾아야 한다.<br><br>
+            <br>
 
-            그런데...<br>
-            당신 혼자가 아니다.
-        </p>
+            <button onclick="checkCode()">확인</button>
+            <button onclick="closePopup()">닫기</button>
 
-        <button id="startBtn">게임 시작</button>
-
-        <div id="hint">
-            WASD / 방향키 : 이동<br>
-            마우스 : 손전등 방향<br>
-            SHIFT : 달리기
+            <p id="error"></p>
         </div>
     </div>
-</div>
 
-<div id="gameOver" class="hidden">
-    <div class="panel">
-        <h2>GAME OVER</h2>
-        <p>
-            어둠 속에서 무언가가 당신을 발견했다.
-        </p>
-        <button onclick="location.reload()">다시 시작</button>
-    </div>
-</div>
-
-<div id="winScreen" class="hidden">
-    <div class="panel">
-        <h2>탈출</h2>
-        <p>
-            무사히 폐병원에서 빠져나왔다.<br><br>
-            하지만 문을 닫는 순간<br>
-            병원 안쪽에서 발소리가 들렸다.
-        </p>
-        <button onclick="location.reload()">다시 플레이</button>
-    </div>
-</div>
-
-<div id="touch">
-
-    <div class="touchRow">
-        <button class="touchBtn" data-key="w">▲</button>
-    </div>
-
-    <div class="touchRow">
-        <button class="touchBtn" data-key="a">◀</button>
-        <button class="touchBtn" data-key="s">▼</button>
-        <button class="touchBtn" data-key="d">▶</button>
+    <!-- 성공 -->
+    <div id="win">
+        <div>
+            <h1>🎉 탈출 성공!</h1>
+            <p>축하합니다.</p>
+            <p>모든 단서를 찾아 방에서 탈출했습니다.</p>
+            <button onclick="location.reload()">다시 플레이</button>
+        </div>
     </div>
 
 </div>
 
 <script>
 
-/* =========================================================
-   기본 설정
-========================================================= */
-
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
-
-let W = innerWidth;
-let H = innerHeight;
-
-function resize(){
-    W = canvas.width = innerWidth;
-    H = canvas.height = innerHeight;
-}
-
-addEventListener("resize",resize);
-resize();
-
-
-/* =========================================================
-   게임 상태
-========================================================= */
-
-let running = false;
-let gameWon = false;
-let gameLost = false;
-
-let health = 100;
-let keysFound = 0;
-let battery = 100;
-
-let messageTimer = 0;
-
-const keys = {};
-
-let mouseX = W/2;
-let mouseY = H/2;
-
-let cameraX = 0;
-let cameraY = 0;
-
-
-/* =========================================================
-   플레이어
-========================================================= */
-
-const player = {
-    x:180,
-    y:180,
-    r:14,
-    speed:2.4
+let found = {
+    book: false,
+    picture: false,
+    clock: false,
+    note: false
 };
 
+const message = document.getElementById("message");
+const status = document.getElementById("status");
 
-/* =========================================================
-   월드
-========================================================= */
+function updateStatus() {
 
-const WORLD_W = 3000;
-const WORLD_H = 2200;
+    let count = Object.values(found).filter(Boolean).length;
 
+    status.textContent =
+        "단서 발견: " + count + " / 4";
 
-/* =========================================================
-   벽
-========================================================= */
-
-const walls = [
-
-    // 외벽
-    {x:0,y:0,w:WORLD_W,h:40},
-    {x:0,y:WORLD_H-40,w:WORLD_W,h:40},
-    {x:0,y:0,w:40,h:WORLD_H},
-    {x:WORLD_W-40,y:0,w:40,h:WORLD_H},
-
-    // 병실
-    {x:500,y:100,w:40,h:700},
-    {x:500,y:800,w:800,h:40},
-
-    // 중앙 복도
-    {x:1300,y:100,w:40,h:850},
-    {x:1700,y:500,w:40,h:1000},
-
-    // 아래쪽 방
-    {x:400,y:1300,w:900,h:40},
-    {x:400,y:1300,w:40,h:600},
-    {x:1300,y:1500,w:400,h:40},
-
-    // 오른쪽
-    {x:2100,y:100,w:40,h:700},
-    {x:2100,y:800,w:650,h:40},
-
-    {x:2300,y:1200,w:40,h:700},
-    {x:1900,y:1800,w:440,h:40},
-
-    // 작은 방
-    {x:700,y:400,w:300,h:40},
-    {x:1000,y:400,w:40,h:300},
-
-    {x:700,y:1000,w:40,h:300},
-    {x:700,y:1000,w:400,h:40},
-
-    // 장애물
-    {x:1450,y:300,w:150,h:40},
-    {x:1450,y:300,w:40,h:220},
-
-    {x:900,y:1550,w:250,h:40},
-    {x:1150,y:1550,w:40,h:180},
-
-    {x:1850,y:1000,w:350,h:40},
-    {x:1850,y:1000,w:40,h:250}
-];
-
-
-/* =========================================================
-   아이템
-========================================================= */
-
-const itemObjects = [
-
-    {
-        x:350,
-        y:600,
-        type:"key",
-        collected:false
-    },
-
-    {
-        x:900,
-        y:1150,
-        type:"key",
-        collected:false
-    },
-
-    {
-        x:2450,
-        y:1500,
-        type:"key",
-        collected:false
+    if (count === 4) {
+        message.textContent =
+            "모든 단서를 확인했습니다. 문을 클릭해서 암호를 입력하세요!";
     }
-];
+}
 
+/* 책 */
+document.getElementById("book").onclick = function() {
 
-/* =========================================================
-   탈출구
-========================================================= */
+    found.book = true;
 
-const exit = {
-    x:2800,
-    y:1950,
-    w:80,
-    h:120
+    message.textContent =
+        "책에서 숫자를 발견했다. → 2";
+
+    this.style.boxShadow =
+        "0 0 25px rgba(255,255,255,.5)";
+
+    updateStatus();
 };
 
+/* 액자 */
+document.getElementById("picture").onclick = function() {
 
-/* =========================================================
-   괴물
-========================================================= */
+    found.picture = true;
 
-const monster = {
+    message.textContent =
+        "그림 속 숫자: 7 △ 3";
 
-    x:2600,
-    y:400,
-
-    r:22,
-
-    speed:1.0,
-
-    active:false,
-
-    targetTimer:0,
-
-    wanderX:2600,
-    wanderY:400
+    updateStatus();
 };
 
+/* 시계 */
+document.getElementById("clock").onclick = function() {
 
-/* =========================================================
-   충돌
-========================================================= */
+    found.clock = true;
 
-function circleRectCollision(cx,cy,r,rect){
+    message.textContent =
+        "시계가 가리키는 시간은 10시 20분이다. → 1020";
 
-    const closestX =
-        Math.max(rect.x,Math.min(cx,rect.x+rect.w));
+    updateStatus();
+};
 
-    const closestY =
-        Math.max(rect.y,Math.min(cy,rect.y+rect.h));
+/* 메모 */
+document.getElementById("note").onclick = function() {
 
-    const dx = cx-closestX;
-    const dy = cy-closestY;
+    found.note = true;
 
-    return dx*dx+dy*dy < r*r;
-}
+    message.textContent =
+        "메모: '시계가 가리키는 시간과 그림 속 숫자를 기억하라.'";
 
+    updateStatus();
+};
 
-function collidesWall(x,y,r){
+/* 문 */
+document.getElementById("door").onclick = function() {
 
-    for(const wall of walls){
+    if (!Object.values(found).every(Boolean)) {
 
-        if(circleRectCollision(x,y,r,wall))
-            return true;
+        message.textContent =
+            "아직 모든 단서를 찾지 못했습니다.";
 
-    }
+        document.getElementById("game")
+            .classList.add("flash");
 
-    return false;
-}
+        setTimeout(() => {
+            document.getElementById("game")
+                .classList.remove("flash");
+        }, 700);
 
-
-function movePlayer(dx,dy){
-
-    let nx = player.x + dx;
-
-    if(!collidesWall(nx,player.y,player.r))
-        player.x = nx;
-
-    let ny = player.y + dy;
-
-    if(!collidesWall(player.x,ny,player.r))
-        player.y = ny;
-}
-
-
-/* =========================================================
-   키보드
-========================================================= */
-
-addEventListener("keydown",e=>{
-
-    keys[e.key.toLowerCase()] = true;
-
-    if(e.key === "Shift")
-        keys.shift = true;
-
-});
-
-addEventListener("keyup",e=>{
-
-    keys[e.key.toLowerCase()] = false;
-
-    if(e.key === "Shift")
-        keys.shift = false;
-
-});
-
-
-/* =========================================================
-   마우스
-========================================================= */
-
-addEventListener("mousemove",e=>{
-
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-
-});
-
-
-/* =========================================================
-   터치
-========================================================= */
-
-document.querySelectorAll(".touchBtn").forEach(btn=>{
-
-    const key = btn.dataset.key;
-
-    btn.addEventListener("touchstart",e=>{
-        e.preventDefault();
-        keys[key]=true;
-    });
-
-    btn.addEventListener("touchend",e=>{
-        e.preventDefault();
-        keys[key]=false;
-    });
-
-});
-
-
-/* =========================================================
-   사운드
-========================================================= */
-
-let audioCtx = null;
-
-function initAudio(){
-
-    if(!audioCtx)
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-}
-
-
-function sound(freq,duration,type="sine",volume=.04){
-
-    if(!audioCtx) return;
-
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-
-    osc.type = type;
-    osc.frequency.value = freq;
-
-    gain.gain.value = volume;
-
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-
-    osc.start();
-
-    gain.gain.exponentialRampToValueAtTime(
-        .001,
-        audioCtx.currentTime+duration
-    );
-
-    osc.stop(audioCtx.currentTime+duration);
-}
-
-
-function heartbeat(){
-
-    sound(70,.12,"sine",.06);
-
-    setTimeout(()=>{
-        sound(55,.1,"sine",.05);
-    },150);
-
-}
-
-
-/* =========================================================
-   메시지
-========================================================= */
-
-function showMessage(text,time=180){
-
-    document.getElementById("message").textContent=text;
-
-    messageTimer=time;
-
-}
-
-
-/* =========================================================
-   플레이어 업데이트
-========================================================= */
-
-function updatePlayer(){
-
-    let dx=0;
-    let dy=0;
-
-    if(keys.w || keys.arrowup) dy--;
-    if(keys.s || keys.arrowdown) dy++;
-    if(keys.a || keys.arrowleft) dx--;
-    if(keys.d || keys.arrowright) dx++;
-
-    if(dx!==0 || dy!==0){
-
-        const length=Math.hypot(dx,dy);
-
-        dx/=length;
-        dy/=length;
-
-        let speed=player.speed;
-
-        if(keys.shift){
-            speed=4.1;
-            battery-=0.015;
-        }
-
-        movePlayer(dx*speed,dy*speed);
-
-    }
-
-}
-
-
-/* =========================================================
-   아이템
-========================================================= */
-
-function updateItems(){
-
-    for(const item of itemObjects){
-
-        if(item.collected) continue;
-
-        const dist=Math.hypot(
-            player.x-item.x,
-            player.y-item.y
-        );
-
-        if(dist<35){
-
-            item.collected=true;
-
-            keysFound++;
-
-            sound(800,.15,"square",.04);
-
-            if(keysFound===3){
-
-                showMessage(
-                    "열쇠 3개를 모두 찾았다. 출구로 가라.",
-                    300
-                );
-
-            }else{
-
-                showMessage(
-                    `열쇠를 찾았다! (${keysFound}/3)`,
-                    180
-                );
-
-            }
-
-        }
-
-    }
-
-}
-
-
-/* =========================================================
-   괴물 AI
-========================================================= */
-
-function updateMonster(){
-
-    const dist=Math.hypot(
-        player.x-monster.x,
-        player.y-monster.y
-    );
-
-
-    /*
-        일정 거리 안으로 들어오면 추격 시작
-    */
-
-    if(dist<650)
-        monster.active=true;
-
-
-    if(monster.active){
-
-        let dx=player.x-monster.x;
-        let dy=player.y-monster.y;
-
-        const len=Math.hypot(dx,dy);
-
-        if(len>0){
-
-            dx/=len;
-            dy/=len;
-
-        }
-
-
-        let speed=monster.speed;
-
-        /*
-            플레이어가 가까워질수록 조금 빨라짐
-        */
-
-        if(dist<350)
-            speed=1.45;
-
-        if(dist<200)
-            speed=1.8;
-
-
-        const nx=monster.x+dx*speed;
-        const ny=monster.y+dy*speed;
-
-
-        if(!collidesWall(nx,monster.y,monster.r))
-            monster.x=nx;
-
-        if(!collidesWall(monster.x,ny,monster.r))
-            monster.y=ny;
-
-
-        /*
-            가까워졌을 때 피해
-        */
-
-        if(dist<48){
-
-            health-=0.12;
-
-            if(Math.random()<0.015)
-                heartbeat();
-
-        }
-
-    }else{
-
-        /*
-            아직 발견하지 못했을 때 천천히 배회
-        */
-
-        monster.targetTimer--;
-
-        if(monster.targetTimer<=0){
-
-            monster.targetTimer=120;
-
-            monster.wanderX=
-                100+Math.random()*(WORLD_W-200);
-
-            monster.wanderY=
-                100+Math.random()*(WORLD_H-200);
-
-        }
-
-
-        let dx=monster.wanderX-monster.x;
-        let dy=monster.wanderY-monster.y;
-
-        const len=Math.hypot(dx,dy);
-
-        if(len>5){
-
-            dx/=len;
-            dy/=len;
-
-            const nx=monster.x+dx*.45;
-            const ny=monster.y+dy*.45;
-
-            if(!collidesWall(nx,monster.y,monster.r))
-                monster.x=nx;
-
-            if(!collidesWall(monster.x,ny,monster.r))
-                monster.y=ny;
-
-        }
-
-    }
-
-
-    /*
-        괴물이 너무 가까우면 공포 효과
-    */
-
-    const dangerDistance=Math.hypot(
-        player.x-monster.x,
-        player.y-monster.y
-    );
-
-    const danger=document.getElementById("danger");
-
-    if(dangerDistance<500){
-
-        const opacity=
-            Math.max(
-                0,
-                1-dangerDistance/500
-            )*.65;
-
-        danger.style.opacity=opacity;
-
-    }else{
-
-        danger.style.opacity=0;
-
-    }
-
-
-    if(health<=0){
-
-        gameLost=true;
-
-        running=false;
-
-        document.getElementById("gameOver")
-            .classList.remove("hidden");
-
-    }
-
-}
-
-
-/* =========================================================
-   탈출구
-========================================================= */
-
-function updateExit(){
-
-    const dist=Math.hypot(
-        player.x-(exit.x+exit.w/2),
-        player.y-(exit.y+exit.h/2)
-    );
-
-
-    if(dist<100){
-
-        if(keysFound>=3){
-
-            gameWon=true;
-            running=false;
-
-            sound(900,.5,"sine",.07);
-
-            document.getElementById("winScreen")
-                .classList.remove("hidden");
-
-        }else{
-
-            showMessage(
-                `문이 잠겨 있다. 열쇠가 ${3-keysFound}개 더 필요하다.`,
-                100
-            );
-
-        }
-
-    }
-
-}
-
-
-/* =========================================================
-   카메라
-========================================================= */
-
-function updateCamera(){
-
-    cameraX =
-        player.x-W/2;
-
-    cameraY =
-        player.y-H/2;
-
-
-    cameraX=Math.max(
-        0,
-        Math.min(cameraX,WORLD_W-W)
-    );
-
-    cameraY=Math.max(
-        0,
-        Math.min(cameraY,WORLD_H-H)
-    );
-
-}
-
-
-/* =========================================================
-   렌더링
-========================================================= */
-
-function drawWorld(){
-
-    ctx.fillStyle="#070707";
-
-    ctx.fillRect(
-        0,
-        0,
-        W,
-        H
-    );
-
-
-    /*
-        바닥
-    */
-
-    ctx.save();
-
-    ctx.translate(-cameraX,-cameraY);
-
-    ctx.fillStyle="#151515";
-
-    ctx.fillRect(
-        0,
-        0,
-        WORLD_W,
-        WORLD_H
-    );
-
-
-    /*
-        바닥 타일
-    */
-
-    ctx.strokeStyle="rgba(255,255,255,.025)";
-    ctx.lineWidth=1;
-
-    for(let x=40;x<WORLD_W;x+=80){
-
-        ctx.beginPath();
-        ctx.moveTo(x,40);
-        ctx.lineTo(x,WORLD_H-40);
-        ctx.stroke();
-
-    }
-
-    for(let y=40;y<WORLD_H;y+=80){
-
-        ctx.beginPath();
-        ctx.moveTo(40,y);
-        ctx.lineTo(WORLD_W-40,y);
-        ctx.stroke();
-
-    }
-
-
-    /*
-        벽
-    */
-
-    for(const wall of walls){
-
-        ctx.fillStyle="#292929";
-
-        ctx.fillRect(
-            wall.x,
-            wall.y,
-            wall.w,
-            wall.h
-        );
-
-        ctx.strokeStyle="#444";
-
-        ctx.strokeRect(
-            wall.x,
-            wall.y,
-            wall.w,
-            wall.h
-        );
-
-    }
-
-
-    /*
-        출구
-    */
-
-    ctx.fillStyle =
-        keysFound>=3
-        ? "#245f32"
-        : "#3b1717";
-
-    ctx.fillRect(
-        exit.x,
-        exit.y,
-        exit.w,
-        exit.h
-    );
-
-    ctx.strokeStyle="#aaa";
-
-    ctx.strokeRect(
-        exit.x,
-        exit.y,
-        exit.w,
-        exit.h
-    );
-
-    ctx.fillStyle="#ddd";
-
-    ctx.font="16px Arial";
-
-    ctx.fillText(
-        "EXIT",
-        exit.x+17,
-        exit.y+60
-    );
-
-
-    /*
-        열쇠
-    */
-
-    for(const item of itemObjects){
-
-        if(item.collected)
-            continue;
-
-        ctx.save();
-
-        ctx.translate(item.x,item.y);
-
-        ctx.rotate(Math.PI/4);
-
-        ctx.fillStyle="#d8b83d";
-
-        ctx.fillRect(
-            -7,
-            -7,
-            14,
-            14
-        );
-
-        ctx.restore();
-
-        ctx.strokeStyle="#fff2a0";
-
-        ctx.beginPath();
-
-        ctx.arc(
-            item.x,
-            item.y,
-            10,
-            0,
-            Math.PI*2
-        );
-
-        ctx.stroke();
-
-    }
-
-
-    /*
-        괴물
-    */
-
-    ctx.save();
-
-    ctx.translate(monster.x,monster.y);
-
-    /*
-        그림자
-    */
-
-    ctx.fillStyle="rgba(0,0,0,.6)";
-
-    ctx.beginPath();
-
-    ctx.ellipse(
-        0,
-        20,
-        35,
-        12,
-        0,
-        0,
-        Math.PI*2
-    );
-
-    ctx.fill();
-
-
-    /*
-        몸
-    */
-
-    ctx.fillStyle="#080808";
-
-    ctx.beginPath();
-
-    ctx.arc(
-        0,
-        0,
-        monster.r,
-        0,
-        Math.PI*2
-    );
-
-    ctx.fill();
-
-
-    /*
-        눈
-    */
-
-    ctx.fillStyle="#eee";
-
-    ctx.beginPath();
-
-    ctx.arc(-7,-5,3,0,Math.PI*2);
-    ctx.arc(7,-5,3,0,Math.PI*2);
-
-    ctx.fill();
-
-    ctx.restore();
-
-
-    /*
-        플레이어
-    */
-
-    ctx.fillStyle="#ddd";
-
-    ctx.beginPath();
-
-    ctx.arc(
-        player.x,
-        player.y,
-        player.r,
-        0,
-        Math.PI*2
-    );
-
-    ctx.fill();
-
-
-    ctx.strokeStyle="#fff";
-
-    ctx.stroke();
-
-
-    /*
-        손전등 방향 표시
-    */
-
-    const worldMouseX=
-        mouseX+cameraX;
-
-    const worldMouseY=
-        mouseY+cameraY;
-
-    const angle=
-        Math.atan2(
-            worldMouseY-player.y,
-            worldMouseX-player.x
-        );
-
-    ctx.strokeStyle=
-        "rgba(255,255,255,.3)";
-
-    ctx.lineWidth=2;
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        player.x,
-        player.y
-    );
-
-    ctx.lineTo(
-        player.x+Math.cos(angle)*55,
-        player.y+Math.sin(angle)*55
-    );
-
-    ctx.stroke();
-
-
-    ctx.restore();
-
-}
-
-
-/* =========================================================
-   손전등
-========================================================= */
-
-function updateFlashlight(){
-
-    /*
-        화면 중앙을 기준으로 마우스 방향을 약간 반영
-    */
-
-    const dx=mouseX-W/2;
-    const dy=mouseY-H/2;
-
-    const distance=Math.hypot(dx,dy);
-
-    const offsetX =
-        distance>0
-        ? dx/distance*80
-        : 0;
-
-    const offsetY =
-        distance>0
-        ? dy/distance*80
-        : 0;
-
-
-    const size =
-        150 + Math.min(battery,100)*.5;
-
-
-    document.getElementById("flashlight")
-        .style.background=
-        `radial-gradient(
-            circle ${size}px at
-            ${50+offsetX/W*100}%
-            ${50+offsetY/H*100}%,
-            transparent 0%,
-            rgba(0,0,0,.08) 30%,
-            rgba(0,0,0,.7) 65%,
-            rgba(0,0,0,.97) 100%
-        )`;
-
-
-    /*
-        손전등 배터리
-    */
-
-    battery-=0.003;
-
-    if(battery<0)
-        battery=0;
-
-
-    document.getElementById("battery")
-        .textContent=Math.floor(battery);
-
-}
-
-
-/* =========================================================
-   HUD
-========================================================= */
-
-function updateHUD(){
-
-    document.getElementById("keyCount")
-        .textContent=keysFound;
-
-    document.getElementById("healthBar")
-        .style.width=Math.max(0,health)+"%";
-
-
-    if(messageTimer>0){
-
-        messageTimer--;
-
-        if(messageTimer<=0)
-            document.getElementById("message").textContent="";
-
-    }
-
-}
-
-
-/* =========================================================
-   메인 업데이트
-========================================================= */
-
-function update(){
-
-    if(!running)
         return;
+    }
 
-    updatePlayer();
+    document.getElementById("popup").style.display = "flex";
+    document.getElementById("code").focus();
+};
 
-    updateItems();
+/* 암호 */
+function checkCode() {
 
-    updateMonster();
+    const input =
+        document.getElementById("code").value;
 
-    updateExit();
+    /*
+        정답:
+        1020
+    */
 
-    updateCamera();
+    if (input === "1020") {
 
-    updateFlashlight();
+        document.getElementById("popup").style.display = "none";
 
-    updateHUD();
+        document.getElementById("win").style.display = "flex";
 
+    } else {
+
+        document.getElementById("error").textContent =
+            "❌ 암호가 틀렸습니다.";
+
+        document.getElementById("error").style.color =
+            "#ff5555";
+    }
 }
 
-
-/* =========================================================
-   메인 렌더
-========================================================= */
-
-function draw(){
-
-    drawWorld();
-
+function closePopup() {
+    document.getElementById("popup").style.display = "none";
 }
 
+/* Enter 키 */
+document.getElementById("code").addEventListener("keydown", function(e) {
 
-/* =========================================================
-   게임 루프
-========================================================= */
-
-function loop(){
-
-    update();
-
-    draw();
-
-    requestAnimationFrame(loop);
-
-}
-
-loop();
-
-
-/* =========================================================
-   시작
-========================================================= */
-
-document.getElementById("startBtn")
-.addEventListener("click",()=>{
-
-    initAudio();
-
-    if(audioCtx && audioCtx.state==="suspended")
-        audioCtx.resume();
-
-    running=true;
-
-    document.getElementById("startScreen")
-        .classList.add("hidden");
-
-    showMessage(
-        "열쇠 3개를 찾아서 탈출구로 가라.",
-        240
-    );
-
-    sound(180,.4,"sine",.04);
+    if (e.key === "Enter") {
+        checkCode();
+    }
 
 });
 
-
-/* =========================================================
-   탭/클릭 시 오디오 활성화
-========================================================= */
-
-document.addEventListener("click",()=>{
-
-    if(audioCtx && audioCtx.state==="suspended")
-        audioCtx.resume();
-
-});
-
-
-/* =========================================================
-   창을 벗어났을 때 키 입력 초기화
-========================================================= */
-
-addEventListener("blur",()=>{
-
-    for(const key in keys)
-        keys[key]=false;
-
-});
+updateStatus();
 
 </script>
 
