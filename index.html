@@ -1,576 +1,282 @@
-```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>방 탈출</title>
-
+<title>3D 블록 파쿠르</title>
 <style>
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    background: #090909;
-    color: white;
-    font-family: Arial, sans-serif;
-    overflow: hidden;
-}
-
-#game {
-    width: 100vw;
-    height: 100vh;
-    position: relative;
-    background:
-        radial-gradient(circle at 50% 35%, #292929 0%, #111 45%, #050505 100%);
-}
-
-/* 어두운 효과 */
-#darkness {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background:
-        radial-gradient(circle at 50% 50%,
-        transparent 0px,
-        rgba(0,0,0,.25) 180px,
-        rgba(0,0,0,.75) 500px,
-        rgba(0,0,0,.95) 900px);
-}
-
-/* 천장등 */
-#lamp {
-    position: absolute;
-    top: 35px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90px;
-    height: 25px;
-    background: #ddd;
-    border-radius: 50%;
-    box-shadow: 0 0 70px 35px rgba(255,240,180,.25);
-}
-
-/* 벽 */
-.wall {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 68%;
-    background:
-        repeating-linear-gradient(
-            90deg,
-            #242424 0px,
-            #242424 100px,
-            #202020 101px,
-            #202020 103px
-        );
-}
-
-/* 바닥 */
-.floor {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 32%;
-    background:
-        repeating-linear-gradient(
-            90deg,
-            #171717 0,
-            #171717 120px,
-            #222 121px,
-            #222 123px
-        ),
-        repeating-linear-gradient(
-            0deg,
-            transparent 0,
-            transparent 55px,
-            rgba(255,255,255,.03) 56px
-        );
-}
-
-/* 문 */
-#door {
-    position: absolute;
-    width: 190px;
-    height: 390px;
-    left: 50%;
-    bottom: 32%;
-    transform: translateX(-50%);
-    background: linear-gradient(90deg,#161616,#292929,#151515);
-    border: 7px solid #111;
-    box-shadow: inset 0 0 30px black, 0 0 30px #000;
-    cursor: pointer;
-}
-
-#door::before {
-    content: "";
-    position: absolute;
-    inset: 15px;
-    border: 2px solid #444;
-}
-
-#handle {
-    position: absolute;
-    right: 25px;
-    top: 50%;
-    width: 15px;
-    height: 55px;
-    background: #777;
-    border-radius: 8px;
-}
-
-#lock {
-    position: absolute;
-    left: 50%;
-    top: 45%;
-    transform: translate(-50%,-50%);
-    width: 35px;
-    height: 35px;
-    border: 4px solid #888;
-    border-radius: 50%;
-}
-
-/* 책상 */
-#desk {
-    position: absolute;
-    left: 8%;
-    bottom: 25%;
-    width: 260px;
-    height: 25px;
-    background: #38261b;
-    box-shadow: 0 8px 0 #21150e;
-}
-
-#desk::before,
-#desk::after {
-    content: "";
-    position: absolute;
-    top: 20px;
-    width: 20px;
-    height: 180px;
-    background: #28190f;
-}
-
-#desk::before { left: 15px; }
-#desk::after { right: 15px; }
-
-/* 책 */
-#book {
-    position: absolute;
-    left: 90px;
-    bottom: 27%;
-    width: 80px;
-    height: 55px;
-    background: #6c2525;
-    border: 3px solid #321010;
-    transform: rotate(-5deg);
-    cursor: pointer;
-}
-
-/* 액자 */
-#picture {
-    position: absolute;
-    right: 12%;
-    top: 15%;
-    width: 170px;
-    height: 130px;
-    background: #302414;
-    border: 12px solid #765b35;
-    cursor: pointer;
-}
-
-#picture::after {
-    content: "7  △  3";
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    background: #161616;
-    color: #d7c28b;
-    font-size: 25px;
-}
-
-/* 시계 */
-#clock {
-    position: absolute;
-    left: 12%;
-    top: 13%;
-    width: 110px;
-    height: 110px;
-    border: 7px solid #777;
-    border-radius: 50%;
-    background: #111;
-    cursor: pointer;
-}
-
-#clock::before {
-    content: "";
-    position: absolute;
-    width: 4px;
-    height: 38px;
-    background: white;
-    left: 50%;
-    top: 17px;
-    transform-origin: bottom;
-    transform: rotate(30deg);
-}
-
-#clock::after {
-    content: "";
-    position: absolute;
-    width: 4px;
-    height: 30px;
-    background: white;
-    left: 50%;
-    top: 25px;
-    transform-origin: bottom;
-    transform: rotate(300deg);
-}
-
-/* 메모 */
-#note {
-    position: absolute;
-    right: 5%;
-    bottom: 12%;
-    width: 180px;
-    min-height: 100px;
-    padding: 15px;
-    background: #c8b77a;
-    color: #181818;
-    transform: rotate(3deg);
-    cursor: pointer;
-    box-shadow: 5px 8px 15px #000;
-}
-
-#note b {
-    display: block;
-    margin-bottom: 8px;
-}
-
-/* HUD */
-#hud {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    padding: 12px 18px;
-    background: rgba(0,0,0,.65);
-    border: 1px solid #555;
-    border-radius: 8px;
-    z-index: 10;
-}
-
-#message {
-    position: absolute;
-    bottom: 25px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: min(700px,90%);
-    padding: 15px;
-    text-align: center;
-    background: rgba(0,0,0,.8);
-    border: 1px solid #555;
-    border-radius: 8px;
-    z-index: 20;
-}
-
-/* 팝업 */
-#popup {
-    display: none;
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,.85);
-    z-index: 50;
-    align-items: center;
-    justify-content: center;
-}
-
-.panel {
-    width: min(450px,90%);
-    background: #181818;
-    border: 2px solid #666;
-    border-radius: 12px;
-    padding: 25px;
-    text-align: center;
-    box-shadow: 0 0 50px black;
-}
-
-input {
-    width: 100%;
-    padding: 14px;
-    margin: 15px 0;
-    background: #090909;
-    border: 1px solid #555;
-    color: white;
-    text-align: center;
-    font-size: 22px;
-    letter-spacing: 5px;
-}
-
-button {
-    padding: 12px 25px;
-    border: none;
-    border-radius: 7px;
-    background: #777;
-    color: white;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-button:hover {
-    background: #999;
-}
-
-/* 탈출 성공 */
-#win {
-    display: none;
-    position: absolute;
-    inset: 0;
-    z-index: 100;
-    background: rgba(0,0,0,.95);
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-#win h1 {
-    font-size: 60px;
-    color: #eee;
-    text-shadow: 0 0 30px white;
-}
-
-#win p {
-    font-size: 20px;
-    color: #aaa;
-}
-
-.flash {
-    animation: flash .2s 3;
-}
-
-@keyframes flash {
-    50% {
-        filter: brightness(3);
-    }
-}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#87ceeb;font-family:Arial,sans-serif}
+canvas{display:block}
+#ui{position:fixed;left:15px;top:15px;color:white;background:rgba(0,0,0,.55);padding:12px 15px;border-radius:10px;z-index:5;line-height:1.6;text-shadow:1px 1px 2px #000}
+#cross{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);color:white;font-size:24px;z-index:4;text-shadow:0 0 4px #000;pointer-events:none}
+#start{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;z-index:10;color:white;text-align:center}
+.panel{background:#202020;padding:30px 40px;border-radius:16px;box-shadow:0 10px 40px #000}
+button{font-size:18px;padding:12px 25px;border:0;border-radius:8px;cursor:pointer}
+#win{display:none;position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.75);color:white;align-items:center;justify-content:center;text-align:center}
+#msg{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);background:rgba(0,0,0,.55);color:white;padding:8px 16px;border-radius:8px;z-index:6}
 </style>
 </head>
-
 <body>
 
-<div id="game">
+<div id="ui">
+  🧱 <b>3D 블록 파쿠르</b><br>
+  WASD: 이동 &nbsp; Space: 점프<br>
+  마우스: 시점 회전 &nbsp; R: 체크포인트<br>
+  <span id="stats">체크포인트: 시작</span>
+</div>
+<div id="cross">+</div>
+<div id="msg">마우스를 클릭하고 파쿠르를 시작하세요!</div>
 
-    <div class="wall"></div>
-    <div class="floor"></div>
+<div id="start">
+  <div class="panel">
+    <h1>🧱 3D 블록 파쿠르</h1>
+    <p>마인크래프트 느낌의 3D 파쿠르 맵</p>
+    <p>WASD 이동 · Space 점프 · 마우스 시점</p>
+    <button id="play">게임 시작</button>
+  </div>
+</div>
 
-    <div id="lamp"></div>
-
-    <div id="door" title="잠긴 문">
-        <div id="lock"></div>
-        <div id="handle"></div>
-    </div>
-
-    <div id="desk"></div>
-    <div id="book" title="책"></div>
-
-    <div id="picture" title="액자"></div>
-    <div id="clock" title="시계"></div>
-
-    <div id="note">
-        <b>낡은 메모</b>
-        "시계가 가리키는 시간과<br>
-        그림 속 숫자를 기억하라."
-    </div>
-
-    <div id="darkness"></div>
-
-    <div id="hud">
-        🔐 방 탈출<br>
-        <span id="status">단서를 찾아보세요.</span>
-    </div>
-
-    <div id="message">
-        주변의 물건을 클릭해서 단서를 찾아보세요.
-    </div>
-
-    <!-- 암호 입력 -->
-    <div id="popup">
-        <div class="panel">
-            <h2>🔒 문이 잠겨 있다</h2>
-            <p>4자리 암호를 입력하세요.</p>
-
-            <input
-                id="code"
-                maxlength="4"
-                inputmode="numeric"
-                placeholder="0000"
-            >
-
-            <br>
-
-            <button onclick="checkCode()">확인</button>
-            <button onclick="closePopup()">닫기</button>
-
-            <p id="error"></p>
-        </div>
-    </div>
-
-    <!-- 성공 -->
-    <div id="win">
-        <div>
-            <h1>🎉 탈출 성공!</h1>
-            <p>축하합니다.</p>
-            <p>모든 단서를 찾아 방에서 탈출했습니다.</p>
-            <button onclick="location.reload()">다시 플레이</button>
-        </div>
-    </div>
-
+<div id="win">
+  <div class="panel">
+    <h1>🏆 파쿠르 클리어!</h1>
+    <p id="final"></p>
+    <button onclick="location.reload()">다시 하기</button>
+  </div>
 </div>
 
 <script>
+// 외부 라이브러리 없이 WebGL로 직접 만드는 간단한 3D 블록 파쿠르
+const canvas=document.createElement("canvas");
+document.body.appendChild(canvas);
+const gl=canvas.getContext("webgl");
+if(!gl){alert("이 브라우저는 WebGL을 지원하지 않습니다.");throw 0;}
 
-let found = {
-    book: false,
-    picture: false,
-    clock: false,
-    note: false
-};
+function resize(){
+  canvas.width=innerWidth; canvas.height=innerHeight;
+  gl.viewport(0,0,canvas.width,canvas.height);
+}
+addEventListener("resize",resize); resize();
 
-const message = document.getElementById("message");
-const status = document.getElementById("status");
+const vs=`
+attribute vec3 p;
+attribute vec3 c;
+uniform mat4 mvp;
+varying vec3 col;
+void main(){gl_Position=mvp*vec4(p,1.0);col=c;}
+`;
+const fs=`
+precision mediump float;
+varying vec3 col;
+void main(){gl_FragColor=vec4(col,1.0);}
+`;
+function shader(type,src){
+  const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);
+  if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(s);
+  return s;
+}
+const prog=gl.createProgram();
+gl.attachShader(prog,shader(gl.VERTEX_SHADER,vs));
+gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,fs));
+gl.linkProgram(prog); gl.useProgram(prog);
 
-function updateStatus() {
+const locP=gl.getAttribLocation(prog,"p");
+const locC=gl.getAttribLocation(prog,"c");
+const locM=gl.getUniformLocation(prog,"mvp");
 
-    let count = Object.values(found).filter(Boolean).length;
-
-    status.textContent =
-        "단서 발견: " + count + " / 4";
-
-    if (count === 4) {
-        message.textContent =
-            "모든 단서를 확인했습니다. 문을 클릭해서 암호를 입력하세요!";
-    }
+function matMul(a,b){
+ let r=new Float32Array(16);
+ for(let c=0;c<4;c++)for(let row=0;row<4;row++)
+  r[c*4+row]=a[row]*b[c*4]+a[4+row]*b[c*4+1]+a[8+row]*b[c*4+2]+a[12+row]*b[c*4+3];
+ return r;
+}
+function perspective(fovy,aspect,n,f){
+ const t=1/Math.tan(fovy/2), nf=1/(n-f);
+ return new Float32Array([t/aspect,0,0,0,0,t,0,0,0,0,(f+n)*nf,-1,0,0,2*f*n*nf,0]);
+}
+function cameraMatrix(x,y,z,yaw,pitch){
+ const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
+ // view = rotation X * rotation Y * translation
+ return new Float32Array([
+  cy, sy*sp, -sy*cp,0,
+  0,cp,sp,0,
+  sy,-cy*sp,cy*cp,0,
+  -(cy*x+sy*z), -(sy*sp*x+cp*y-cy*sp*z), sy*cp*x-sp*y-cy*cp*z,1
+ ]);
+}
+function cubeData(x,y,z,sx,sy,sz,color){
+ const x0=x-sx/2,x1=x+sx/2,y0=y-sy/2,y1=y+sy/2,z0=z-sz/2,z1=z+sz/2;
+ const faces=[
+  [[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]],
+  [[x1,y0,z0],[x0,y0,z0],[x0,y1,z0],[x1,y1,z0]],
+  [[x0,y1,z1],[x1,y1,z1],[x1,y1,z0],[x0,y1,z0]],
+  [[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1]],
+  [[x1,y0,z1],[x1,y0,z0],[x1,y1,z0],[x1,y1,z1]],
+  [[x0,y0,z0],[x0,y0,z1],[x0,y1,z1],[x0,y1,z0]]
+ ];
+ const out=[];
+ for(let f=0;f<6;f++){
+  const cc=color.map(v=>Math.min(1,v*(f===2?1.15:(f===3?.72:.9))));
+  const q=faces[f];
+  [0,1,2,0,2,3].forEach(i=>{out.push(...q[i],...cc)});
+ }
+ return out;
 }
 
-/* 책 */
-document.getElementById("book").onclick = function() {
+// 맵: [x,y,z, width,height,depth, color]
+const blocks=[];
+function add(x,y,z,w=2,h=1,d=2,c=[.25,.65,.25]){blocks.push({x,y,z,w,h,d,c});}
+const green=[.25,.65,.25], stone=[.42,.42,.45], gold=[.95,.65,.08], blue=[.12,.45,.9], red=[.8,.15,.12];
 
-    found.book = true;
+// 시작 구간
+add(0,0,0,6,1,6,green);
+add(5,1,0,3,1,3,stone);
+add(9,2,1,2.5,1,2.5,green);
+add(13,3,0,3,1,3,blue);
 
-    message.textContent =
-        "책에서 숫자를 발견했다. → 2";
+// 점프 구간
+add(17,4,0,2,1,2,green);
+add(21,5,2,2,1,2,green);
+add(25,6,0,2,1,2,stone);
+add(29,7,-2,2,1,2,green);
+add(33,8,0,3,1,3,gold);
 
-    this.style.boxShadow =
-        "0 0 25px rgba(255,255,255,.5)";
+// 체크포인트
+add(38,9,0,4,1,4,blue);
 
-    updateStatus();
+// 긴 구간
+add(43,10,2,2,1,2,green);
+add(47,11,0,2,1,2,green);
+add(51,12,-2,2,1,2,green);
+add(55,13,0,2,1,2,stone);
+add(59,14,2,2,1,2,green);
+add(63,15,0,3,1,3,gold);
+
+// 마지막 구간
+add(68,16,0,2,1,2,green);
+add(72,17,2,2,1,2,green);
+add(76,18,0,3,1,3,blue);
+add(81,19,0,6,1,6,red); // 골인
+
+const verts=[];
+for(const b of blocks) verts.push(...cubeData(b.x,b.y,b.z,b.w,b.h,b.d,b.c));
+const buffer=gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(verts),gl.STATIC_DRAW);
+gl.enableVertexAttribArray(locP);
+gl.vertexAttribPointer(locP,3,gl.FLOAT,false,24,0);
+gl.enableVertexAttribArray(locC);
+gl.vertexAttribPointer(locC,3,gl.FLOAT,false,24,12);
+
+gl.enable(gl.DEPTH_TEST);
+gl.clearColor(.53,.78,.96,1);
+
+// 플레이어
+let p={x:0,y:2.2,z:0,vy:0};
+let yaw=0,pitch=-.12;
+let checkpoint={x:0,y:2.2,z:0};
+let grounded=false;
+let keys={};
+let started=false,won=false;
+let deaths=0, startTime=0;
+
+addEventListener("keydown",e=>{
+ keys[e.code]=true;
+ if(e.code==="KeyR") reset();
+ if(e.code==="Space") e.preventDefault();
+});
+addEventListener("keyup",e=>keys[e.code]=false);
+
+document.getElementById("play").onclick=()=>{
+ started=true;
+ startTime=performance.now();
+ document.getElementById("start").style.display="none";
+ canvas.requestPointerLock();
+ msg("마우스를 움직여 시점을 조절하세요!");
 };
+canvas.onclick=()=>{if(started&&!won)canvas.requestPointerLock();};
 
-/* 액자 */
-document.getElementById("picture").onclick = function() {
-
-    found.picture = true;
-
-    message.textContent =
-        "그림 속 숫자: 7 △ 3";
-
-    updateStatus();
-};
-
-/* 시계 */
-document.getElementById("clock").onclick = function() {
-
-    found.clock = true;
-
-    message.textContent =
-        "시계가 가리키는 시간은 10시 20분이다. → 1020";
-
-    updateStatus();
-};
-
-/* 메모 */
-document.getElementById("note").onclick = function() {
-
-    found.note = true;
-
-    message.textContent =
-        "메모: '시계가 가리키는 시간과 그림 속 숫자를 기억하라.'";
-
-    updateStatus();
-};
-
-/* 문 */
-document.getElementById("door").onclick = function() {
-
-    if (!Object.values(found).every(Boolean)) {
-
-        message.textContent =
-            "아직 모든 단서를 찾지 못했습니다.";
-
-        document.getElementById("game")
-            .classList.add("flash");
-
-        setTimeout(() => {
-            document.getElementById("game")
-                .classList.remove("flash");
-        }, 700);
-
-        return;
-    }
-
-    document.getElementById("popup").style.display = "flex";
-    document.getElementById("code").focus();
-};
-
-/* 암호 */
-function checkCode() {
-
-    const input =
-        document.getElementById("code").value;
-
-    /*
-        정답:
-        1020
-    */
-
-    if (input === "1020") {
-
-        document.getElementById("popup").style.display = "none";
-
-        document.getElementById("win").style.display = "flex";
-
-    } else {
-
-        document.getElementById("error").textContent =
-            "❌ 암호가 틀렸습니다.";
-
-        document.getElementById("error").style.color =
-            "#ff5555";
-    }
-}
-
-function closePopup() {
-    document.getElementById("popup").style.display = "none";
-}
-
-/* Enter 키 */
-document.getElementById("code").addEventListener("keydown", function(e) {
-
-    if (e.key === "Enter") {
-        checkCode();
-    }
-
+addEventListener("mousemove",e=>{
+ if(document.pointerLockElement===canvas && started){
+  yaw-=e.movementX*.0025;
+  pitch-=e.movementY*.0025;
+  pitch=Math.max(-1.35,Math.min(1.35,pitch));
+ }
 });
 
-updateStatus();
+function msg(t){
+ document.getElementById("msg").textContent=t;
+ setTimeout(()=>{if(document.getElementById("msg").textContent===t)
+ document.getElementById("msg").textContent="WASD + Space로 이동";},2200);
+}
 
+function reset(){
+ p.x=checkpoint.x;p.y=checkpoint.y;p.z=checkpoint.z;p.vy=0;
+ deaths++;
+ msg("낙사! 체크포인트로 돌아왔습니다.");
+}
+
+function update(dt){
+ if(!started||won)return;
+ const speed=6.5;
+ let fx=-Math.sin(yaw),fz=-Math.cos(yaw);
+ let rx=Math.cos(yaw),rz=-Math.sin(yaw);
+ let dx=0,dz=0;
+ if(keys.KeyW){dx+=fx;dz+=fz}
+ if(keys.KeyS){dx-=fx;dz-=fz}
+ if(keys.KeyD){dx+=rx;dz+=rz}
+ if(keys.KeyA){dx-=rx;dz-=rz}
+ const len=Math.hypot(dx,dz)||1;
+ p.x+=dx/len*speed*dt;
+ p.z+=dz/len*speed*dt;
+
+ if(keys.Space&&grounded){p.vy=8.5;grounded=false}
+ p.vy-=22*dt;
+ const oldY=p.y;
+ p.y+=p.vy*dt;
+
+ grounded=false;
+ for(const b of blocks){
+  const top=b.y+b.h/2;
+  const withinX=Math.abs(p.x-b.x)<b.w/2+.28;
+  const withinZ=Math.abs(p.z-b.z)<b.d/2+.28;
+  if(withinX&&withinZ&&oldY>=top+.05&&p.y<=top+.3&&p.vy<=0){
+    p.y=top+.9;p.vy=0;grounded=true;
+    if(b.c===blue){
+      checkpoint={x:b.x,y:top+.9,z:b.z};
+      msg("💾 체크포인트 저장!");
+    }
+  }
+ }
+ if(p.y<-8) reset();
+
+ // 골인 블록
+ if(p.x>78 && p.x<84 && Math.abs(p.z)<3.5 && p.y>19){
+   won=true;
+   const sec=((performance.now()-startTime)/1000).toFixed(1);
+   document.getElementById("final").textContent=
+    `기록: ${sec}초 · 낙사: ${deaths}회`;
+   document.getElementById("win").style.display="flex";
+   document.exitPointerLock?.();
+ }
+
+ document.getElementById("stats").textContent=
+  `체크포인트: ${checkpoint.x===0?"시작":"저장됨"} · 낙사: ${deaths}`;
+}
+
+function render(){
+ gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+ const proj=perspective(Math.PI/3,canvas.width/canvas.height,.1,300);
+ const view=cameraMatrix(p.x,p.y,p.z,yaw,pitch);
+ gl.uniformMatrix4fv(locM,false,matMul(proj,view));
+ gl.drawArrays(gl.TRIANGLES,0,verts.length/6);
+}
+
+let last=performance.now();
+function loop(now){
+ const dt=Math.min(.033,(now-last)/1000);last=now;
+ update(dt);render();requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
 </script>
-
 </body>
 </html>
-```
