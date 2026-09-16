@@ -413,118 +413,6 @@ function useLocalState(key, initial, shared = false) {
   return [value, save, loaded];
 }
 
-// ===== 미쿠 시메지 (10805 전용) =====
-// 학번 10805에게만 화면 하단에서 좌우로 걸어다니는 마스코트가 보이도록 하는 컴포넌트.
-// 이미지/음성 파일은 실제 저작권이 있는 캐릭터 리소스라 내가 대신 만들어 넣을 수 없어서,
-// 아래 경로에 파일을 직접 넣으면 자동으로 적용돼. 파일이 없으면 조용히 숨겨지도록 처리했어.
-const MIKU_IMAGE_SRC = "assets/miku-shimeji.png"; // 여기에 미쿠 이미지를 넣어줘 (투명 배경 PNG 권장)
-const MIKU_VOICE_SRCS = [
-  "assets/miku-voice-1.mp3", // fish audio로 만든 음성 파일들을 여기 경로에 넣어줘
-  "assets/miku-voice-2.mp3",
-  "assets/miku-voice-3.mp3",
-];
-const MIKU_LINES = [
-  "오늘도 공부 화이팅이야!",
-  "잠깐 스트레칭 어때? 미쿠도 기다릴게~",
-  "목표 점수까지 조금만 더!",
-  "물 마시는 거 잊지 마~",
-];
-const MIKU_STUDENT_ID = "10805";
-
-function MikuShimeji() {
-  const [x, setX] = useState(() => Math.max(10, (typeof window !== "undefined" ? window.innerWidth : 800) * 0.2));
-  const dirRef = useRef(1);
-  const [dir, setDir] = useState(1);
-  const [imgOk, setImgOk] = useState(true);
-  const [bubble, setBubble] = useState(null);
-  const audioRef = useRef(null);
-  const voiceIdxRef = useRef(0);
-
-  // 좌우로 천천히 걸어다니는 애니메이션
-  useEffect(() => {
-    const id = setInterval(() => {
-      setX((prev) => {
-        const width = typeof window !== "undefined" ? window.innerWidth : 800;
-        let next = prev + dirRef.current * 1.1;
-        if (next > width - 130) { dirRef.current = -1; setDir(-1); next = width - 130; }
-        if (next < 8) { dirRef.current = 1; setDir(1); next = 8; }
-        return next;
-      });
-    }, 30);
-    return () => clearInterval(id);
-  }, []);
-
-  const speak = () => {
-    const line = MIKU_LINES[Math.floor(Math.random() * MIKU_LINES.length)];
-    setBubble(line);
-    clearTimeout(speak._t);
-    speak._t = setTimeout(() => setBubble(null), 2600);
-
-    // fish audio로 만들어둔 음성 파일을 순서대로 재생, 파일이 없으면 조용히 무시
-    const src = MIKU_VOICE_SRCS[voiceIdxRef.current % MIKU_VOICE_SRCS.length];
-    voiceIdxRef.current += 1;
-    if (audioRef.current) {
-      audioRef.current.src = src;
-      audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(() => {});
-    }
-  };
-
-  if (!imgOk) return null;
-
-  return (
-    <div
-      style={{
-        position: "fixed",
-        left: x,
-        bottom: 0,
-        zIndex: 900,
-        cursor: "pointer",
-        userSelect: "none",
-        pointerEvents: "auto",
-      }}
-      onClick={speak}
-      title="클릭하면 미쿠가 응원해줘"
-    >
-      {bubble && (
-        <div style={mikuBubbleStyle}>{bubble}</div>
-      )}
-      <img
-        src={MIKU_IMAGE_SRC}
-        alt="미쿠"
-        draggable={false}
-        onError={() => setImgOk(false)}
-        style={{
-          width: 110,
-          height: "auto",
-          display: "block",
-          transform: dir < 0 ? "scaleX(-1)" : "none",
-          filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.25))",
-        }}
-      />
-      <audio ref={audioRef} preload="none" />
-    </div>
-  );
-}
-
-const mikuBubbleStyle = {
-  position: "absolute",
-  bottom: "100%",
-  left: "50%",
-  transform: "translateX(-50%)",
-  background: "#fff",
-  border: "2px solid #39C5BB",
-  borderRadius: 10,
-  padding: "6px 10px",
-  fontSize: 12,
-  fontWeight: 600,
-  whiteSpace: "nowrap",
-  marginBottom: 8,
-  color: "var(--ink)",
-  boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
-};
-// ===== 미쿠 시메지 끝 =====
-
 function ExamPlanner() {
   const [profile, setProfile] = useLocalState("profile", { name: "", studentId: "" });
   const [screen, setScreen] = useState("chooser"); // chooser | login | register1 | register2
@@ -1143,7 +1031,6 @@ function ExamPlanner() {
     <div style={pageStyle}>
       <GlobalStyle />
       <DailyQuote quotesLoaded={quotesLoaded} quotes={quotes} myQuote={myQuote} myQuoteLoaded={myQuoteLoaded} onPick={pickMyQuote} />
-      {profile.studentId === MIKU_STUDENT_ID && <MikuShimeji />}
       <div style={{ maxWidth: 1440, width: "100%", boxSizing: "border-box", margin: "0 auto", padding: "28px 32px 60px" }}>
         <header className="app-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 20 }}>
           <div>
@@ -3447,8 +3334,23 @@ function GlobalStyle() {
       * { box-sizing: border-box; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif; }
       input[type=number]::-webkit-inner-spin-button { opacity: 1; }
       input:focus { outline: none; border-color: var(--ink) !important; }
-      button { -webkit-tap-highlight-color: transparent; outline: none; }
-      button:focus, button:focus-visible, button:active { outline: none; }
+
+      /* 버튼(탭 버튼 포함) 클릭/포커스 시 브라우저 기본 검은/파란 테두리·바가 보이는 문제 방지 */
+      button {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-appearance: none;
+        appearance: none;
+        outline: none;
+        background: transparent;
+      }
+      button::-moz-focus-inner { border: 0; padding: 0; }
+      button:focus,
+      button:focus-visible,
+      button:active,
+      button:hover {
+        outline: none;
+        box-shadow: none;
+      }
 
       /* 핸드폰 모드 - 화면이 좁을 때 배열을 세로로 바꿔줌 */
       @media (max-width: 640px) {
